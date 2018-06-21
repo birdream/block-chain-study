@@ -15,10 +15,6 @@ type Blockchain struct {
 	DB  *bolt.DB // 数据库
 }
 
-type BlockchainIterator struct {
-	currentHash []byte
-}
-
 // 新增区块
 
 // func (Blockchain *Blockchain) AddBlock(data string) {

@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	"kyxy/block-chain/part12-persistencen-and-cli/BLC"
+	"kyxy/block-chain/part13-persistencen-and-cli/BLC"
+	"math/big"
 )
 
 // 16 进制
@@ -13,7 +14,7 @@ func main() {
 	blockchain := BLC.NewBlockChain()
 
 	// fmt.Println(blockchain)
-	fmt.Printf("tip: %x\n", blockchain.Tip)
+	// fmt.Printf("tip: %x\n", blockchain.Tip)
 	// fmt.Println(block.Data)
 	// fmt.Printf("%x\n", block.Hash)
 
@@ -23,13 +24,22 @@ func main() {
 	blockchain.AddBlock("send 20 BTC to NORMAN")
 	blockchain.AddBlock("send 30 BTC to JEN")
 	blockchain.AddBlock("send 100 BTC to ZACK")
-	fmt.Printf("tip: %x\n", blockchain.Tip)
+	// fmt.Printf("tip: %x\n", blockchain.Tip)
 
-	// for _, block := range blockchain.Blocks {
-	// 	fmt.Printf("Data: %s \n", string(block.Data))
-	// 	fmt.Printf("prevHash: %x \n", block.PrevBlockHash)
-	// 	fmt.Printf("Timestamp: %s \n", time.Unix(block.Timestamp, 0))
-	// 	fmt.Printf("Hash: %x \n", block.Hash)
-	// 	fmt.Printf("Nonce: %d \n\n", block.Nonce)
-	// }
+	var blockchanIterator *BLC.BlockchainIterator
+	blockchanIterator = blockchain.Iterator()
+
+	var hashInt big.Int
+
+	for {
+		fmt.Printf("%x\n", blockchanIterator.CurrentHash)
+
+		hashInt.SetBytes(blockchanIterator.CurrentHash)
+
+		if hashInt.Cmp(big.NewInt(0)) == 0 {
+			break
+		} else {
+			blockchanIterator = blockchanIterator.Next()
+		}
+	}
 }
