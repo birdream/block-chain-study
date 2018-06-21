@@ -81,3 +81,29 @@ func NewBlockChain() *Blockchain {
 
 	return &Blockchain{tip, db}
 }
+
+func (blockchain *Blockchain) AddBlock(data string) {
+	newBlock := NewBlock(data, blockchain.Tip)
+
+	err := blockchain.DB.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(blocksBucket))
+
+		err := b.Put(newBlock.Hash, newBlock.Serialize())
+		if err != nil {
+			log.Panic(err)
+		}
+
+		err = b.Put([]byte("l"), newBlock.Hash)
+		if err != nil {
+			log.Panic(err)
+		}
+
+		blockchain.Tip = newBlock.Hash
+
+		return nil
+	})
+
+	if err != nil {
+		log.Panic(err)
+	}
+}

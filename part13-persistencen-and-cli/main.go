@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"kyxy/block-chain/part11-persistencen-and-cli/BLC"
+	"kyxy/block-chain/part12-persistencen-and-cli/BLC"
 )
 
 // 16 进制
@@ -12,7 +12,7 @@ import (
 func main() {
 	blockchain := BLC.NewBlockChain()
 
-	fmt.Println(blockchain)
+	// fmt.Println(blockchain)
 	fmt.Printf("tip: %x\n", blockchain.Tip)
 	// fmt.Println(block.Data)
 	// fmt.Printf("%x\n", block.Hash)
@@ -20,10 +20,10 @@ func main() {
 	// fmt.Println(block)
 	// fmt.Println(blockchain)
 
-	// blockchain.AddBlock("send 20 BTC to NORMAN")
-	// blockchain.AddBlock("send 30 BTC to JEN")
-	// blockchain.AddBlock("send 100 BTC to ZACK")
-	// fmt.Println(blockchain.Blocks)
+	blockchain.AddBlock("send 20 BTC to NORMAN")
+	blockchain.AddBlock("send 30 BTC to JEN")
+	blockchain.AddBlock("send 100 BTC to ZACK")
+	fmt.Printf("tip: %x\n", blockchain.Tip)
 
 	// for _, block := range blockchain.Blocks {
 	// 	fmt.Printf("Data: %s \n", string(block.Data))
