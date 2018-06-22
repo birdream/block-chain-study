@@ -3,8 +3,13 @@ package BLC
 import (
 	"flag"
 	"fmt"
+	"kyxy/block-chain/part11-persistencen-and-cli/BLC"
 	"log"
+	"math/big"
 	"os"
+	"time"
+
+	"github.com/boltdb/bolt"
 )
 
 type CLI struct {
@@ -24,6 +29,48 @@ func (cli *CLI) validateArgs() {
 	}
 }
 
+func (cli *CLI) printChain() {
+	var blockchanIterator *BlockchainIterator
+	blockchanIterator = cli.BC.Iterator()
+
+	var hashInt big.Int
+
+	for {
+		fmt.Printf("%x\n", blockchanIterator.CurrentHash)
+
+		err := blockchanIterator.DB.View(func(tx *bolt.Tx) error {
+			b := tx.Bucket([]byte(blocksBucket))
+			blockBytes := b.Get(blockchanIterator.CurrentHash)
+			block := BLC.DeserializeBlock(blockBytes)
+
+			fmt.Printf("Data: %s \n", string(block.Data))
+			fmt.Printf("prevHash: %x \n", block.PrevBlockHash)
+			fmt.Printf("Timestamp: %s \n", time.Unix(block.Timestamp, 0))
+			fmt.Printf("Hash: %x \n", block.Hash)
+			fmt.Printf("Nonce: %d \n\n", block.Nonce)
+
+			return nil
+		})
+		if err != nil {
+			log.Panic(err)
+		}
+
+		blockchanIterator = blockchanIterator.Next()
+		hashInt.SetBytes(blockchanIterator.CurrentHash)
+
+		if hashInt.Cmp(big.NewInt(0)) == 0 {
+			break
+		}
+	}
+}
+
+func (cli *CLI) addBlock(data string) {
+	cli.BC.AddBlock(data)
+}
+
+/*
+ hello
+*/
 func (cli *CLI) Run() {
 	cli.validateArgs()
 
@@ -43,7 +90,7 @@ func (cli *CLI) Run() {
 			log.Panic(err)
 		}
 	default:
-		flag.Usage()
+		cli.printUsage()
 		os.Exit(1)
 	}
 
@@ -52,10 +99,11 @@ func (cli *CLI) Run() {
 			addBlockCmd.Usage()
 			os.Exit(1)
 		}
-		fmt.Println("data:" + *addBlockData)
+		// fmt.Println("data:" + )
+		cli.addBlock(*addBlockData)
 	}
 
 	if printChainCmd.Parsed() {
-		fmt.Println("printChainCmdprintChainCmdprintChainCmd")
+		cli.printChain()
 	}
 }
