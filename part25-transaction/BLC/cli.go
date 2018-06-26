@@ -7,8 +7,6 @@ import (
 	"math/big"
 	"os"
 	"time"
-
-	"github.com/boltdb/bolt"
 )
 
 type CLI struct {
@@ -35,29 +33,18 @@ func (cli *CLI) printChain() {
 	var hashInt big.Int
 
 	for {
-		fmt.Printf("%x\n", blockchanIterator.CurrentHash)
+		// fmt.Printf("%x\n", blockchanIterator.CurrentHash)
+		block := blockchanIterator.Next()
 
-		err := blockchanIterator.DB.View(func(tx *bolt.Tx) error {
-			b := tx.Bucket([]byte(blocksBucket))
-			blockBytes := b.Get(blockchanIterator.CurrentHash)
-			block := DeserializeBlock(blockBytes)
-
-			// fmt.Printf("Data: %s \n", string(block.Data))
-			fmt.Printf("prevHash: %x \n", block.PrevBlockHash)
-			fmt.Printf("Timestamp: %s \n", time.Unix(block.Timestamp, 0))
-			fmt.Printf("Hash: %x \n", block.Hash)
-			fmt.Printf("Nonce: %d \n", block.Nonce)
-			for _, tranx := range block.Transactions {
-				fmt.Printf("Transactions: %x\n\n", tranx.ID)
-			}
-
-			return nil
-		})
-		if err != nil {
-			log.Panic(err)
+		fmt.Printf("prevHash: %x \n", block.PrevBlockHash)
+		fmt.Printf("Timestamp: %s \n", time.Unix(block.Timestamp, 0))
+		fmt.Printf("Hash: %x \n", block.Hash)
+		fmt.Printf("Transactions: %x \n", block.Transactions)
+		fmt.Printf("Nonce: %d \n\n", block.Nonce)
+		for _, tranx := range block.Transactions {
+			fmt.Printf("Transactions: %x\n\n", tranx.ID)
 		}
 
-		blockchanIterator = blockchanIterator.Next()
 		hashInt.SetBytes(blockchanIterator.CurrentHash)
 
 		if hashInt.Cmp(big.NewInt(0)) == 0 {
@@ -68,9 +55,10 @@ func (cli *CLI) printChain() {
 
 func (cli *CLI) addBlock(data string) {
 	// cli.BC.AddBlock([]*Transaction{})
-	fmt.Println("added a new block...")
+	count, outputMap := cli.BC.FindSpendableOutputs("Norman", 5)
 
-	fmt.Println(cli.BC.FindUnspentTransactions("Norman"))
+	fmt.Println(count)
+	fmt.Println(outputMap)
 }
 
 /*

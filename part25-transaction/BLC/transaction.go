@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/gob"
+	"encoding/hex"
 	"fmt"
 	"log"
 )
 
-const subsidy = 100
+const subsidy = 10
 
 type Transaction struct {
 	ID   []byte
@@ -71,4 +72,41 @@ func (in *TXInput) CanUnlockOutputWith(unlockingData string) bool {
 // 检查是否能解锁账号
 func (out *TXOutput) CanBeUnlockedWith(unlockingData string) bool {
 	return out.ScriptPubKey == unlockingData
+}
+
+// 建立转账交易
+func NewUTXOTransaction(from, to string, amount int, bc *Blockchain) *Transaction {
+	var inputs []TXInput
+	var outputs []TXOutput
+
+	acc, validOutputs := bc.FindSpendableOutputs(from, amount)
+
+	if acc < amount {
+		log.Panic("\nNot enough funds ...!!!\n")
+	}
+
+	// 建立输入
+	for txid, outs := range validOutputs {
+		txID, err := hex.DecodeString(txid)
+		if err != nil {
+			log.Panic(err)
+		}
+
+		for _, out := range outs {
+			input := TXInput{txID, out, from}
+			inputs = append(inputs, input)
+		}
+	}
+
+	// 建立输出， 转账
+	output := TXOutput{amount, to}
+	outputs = append(outputs, output)
+	// 建立输出， 找零
+	output = TXOutput{acc - amount, from}
+	outputs = append(outputs, output)
+
+	tx := Transaction{nil, inputs, outputs}
+	tx.SetID()
+
+	return &tx
 }

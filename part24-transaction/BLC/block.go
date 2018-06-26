@@ -4,17 +4,23 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/gob"
+	"fmt"
 	"log"
 	"strconv"
 	"time"
 )
 
 type Block struct {
-	Timestamp     int64
+	// timestamp creating block time
+	Timestamp int64
+	// last block hash
 	PrevBlockHash []byte
-	Transactions  []*Transaction
-	Hash          []byte
-	Nonce         int
+	// data transtaction data
+	Transactions []*Transaction
+	// current block hash
+	Hash []byte
+	// Nonce 满足某个难度的随机数
+	Nonce int
 }
 
 // 提供给挖矿使用
@@ -46,15 +52,19 @@ func (b *Block) SetHash() {
 
 // 工厂方法
 func NewBlock(transactions []*Transaction, prevBlockHash []byte) *Block {
+	fmt.Print("------transactions:\n")
+	fmt.Print(transactions)
+	fmt.Print("\n")
 	block := &Block{
-		Timestamp:     time.Now().Unix(),
-		PrevBlockHash: prevBlockHash,
-		Transactions:  transactions,
-		Hash:          []byte{},
-		Nonce:         0}
+		time.Now().Unix(),
+		prevBlockHash,
+		transactions,
+		[]byte{},
+		0}
 
 	pow := NewProofOfWork(block)
 	nonce, hash := pow.Run()
+	// pow.Run()
 
 	block.Hash = hash[:]
 	block.Nonce = nonce
@@ -63,6 +73,9 @@ func NewBlock(transactions []*Transaction, prevBlockHash []byte) *Block {
 }
 
 func NewGeneisBlock(coinbase *Transaction) *Block {
+	fmt.Print("------coinbase:\n")
+	fmt.Print(coinbase)
+	fmt.Print("\n")
 	return NewBlock([]*Transaction{coinbase}, []byte{})
 }
 
