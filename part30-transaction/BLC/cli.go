@@ -25,9 +25,12 @@ func (cli *CLI) validateArgs() {
 }
 
 func (cli *CLI) sendToken(from, to string, amount int) {
-	// tx := NewUTXOTransaction(from, to, amount, cli.BC)
+	bc := NewBlockChain(from)
+	defer bc.DB.Close()
 
-	// cli.BC.MineBlock([]*Transaction{tx})
+	tx := NewUTXOTransaction(from, to, amount, bc)
+	bc.MineBlock([]*Transaction{tx})
+	fmt.Println("Success!")
 }
 
 func (cli *CLI) printChain() {
@@ -37,46 +40,29 @@ func (cli *CLI) printChain() {
 		os.Exit(1)
 	}
 
-	// var blockchanIterator *BlockchainIterator
-	// blockchanIterator = cli.BC.Iterator()
+	bc := NewBlockChain("")
+	fmt.Print("===============:")
+	fmt.Println(bc.FindUnspentTransactions("Norman"))
+	defer bc.DB.Close()
 
-	// var hashInt big.Int
+	bci := bc.Iterator()
 
-	// for {
-	// 	// fmt.Printf("%x\n", blockchanIterator.CurrentHash)
-	// 	block := blockchanIterator.Next()
+	for {
+		block := bci.Next()
 
-	// 	fmt.Printf("prevHash: %x \n", block.PrevBlockHash)
-	// 	fmt.Printf("Timestamp: %s \n", time.Unix(block.Timestamp, 0))
-	// 	fmt.Printf("Hash: %x \n", block.Hash)
-	// 	fmt.Printf("Transactions: %x \n", block.Transactions)
-	// 	fmt.Printf("Nonce: %d \n", block.Nonce)
-	// 	for _, tranx := range block.Transactions {
-	// 		fmt.Printf("Transactions: %x\n", tranx.ID)
-	// 	}
-	// 	fmt.Printf("\n")
+		fmt.Printf("Prev. hash: %x\n", block.PrevBlockHash)
+		fmt.Printf("Hash: %x\n", block.Hash)
+		// pow := NewProofOfWork(*block)
+		// fmt.Printf("PoW: %s\n", strconv.FormatBool(pow.Validate()))
+		for _, tranx := range block.Transactions {
+			fmt.Printf("Transactions: %x", tranx.ID)
+		}
+		fmt.Println("\n\n")
 
-	// 	hashInt.SetBytes(blockchanIterator.CurrentHash)
-
-	// 	if hashInt.Cmp(big.NewInt(0)) == 0 {
-	// 		break
-	// 	}
-	// }
-}
-
-func (cli *CLI) addBlock(data string) {
-	// fmt.Print("\n------Norman-----\n")
-	// fmt.Println(cli.BC.FindUnspentTransactions("Norman"))
-	// fmt.Print("\n------Jan-----\n")
-	// fmt.Println(cli.BC.FindUnspentTransactions("Jan"))
-	// fmt.Print("\n------Lu-----\n")
-	// fmt.Println(cli.BC.FindUnspentTransactions("Lu"))
-	// fmt.Print("\n-----------\n")
-	// count, outputMap := cli.BC.FindSpendableOutputs("Norman", 5)
-
-	// fmt.Println(count)
-	// fmt.Println(outputMap)
-	// cli.sendToken()
+		if len(block.PrevBlockHash) == 0 {
+			break
+		}
+	}
 }
 
 func (cli *CLI) createBlockchain(address string) {
@@ -93,7 +79,7 @@ func (cli *CLI) getBalance(address string) {
 	UTXOs := bc.FindUTXO(address)
 
 	for _, out := range UTXOs {
-		balcance += out.Value
+		balance += out.Value
 	}
 
 	fmt.Printf("Balance of '%s': %d\n", address, balance)
@@ -154,7 +140,11 @@ func (cli *CLI) Run() {
 	}
 
 	if getBalanceCmd.Parsed() {
-		cli.getBalance()
+		if *balanceAddr == "" {
+			getBalanceCmd.Usage()
+			os.Exit(1)
+		}
+		cli.getBalance(*balanceAddr)
 	}
 
 	if printChainCmd.Parsed() {

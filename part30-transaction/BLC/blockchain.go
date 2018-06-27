@@ -276,3 +276,19 @@ func (bc *Blockchain) MineBlock(txs []*Transaction) {
 		log.Panic(err)
 	}
 }
+
+// FindUTXO finds and returns all unspent transaction outputs
+func (bc *Blockchain) FindUTXO(address string) []TXOutput {
+	var UTXOs []TXOutput
+	unspentTransactions := bc.FindUnspentTransactions(address)
+
+	for _, tx := range unspentTransactions {
+		for _, out := range tx.Vout {
+			if out.CanBeUnlockedWith(address) {
+				UTXOs = append(UTXOs, out)
+			}
+		}
+	}
+
+	return UTXOs
+}
