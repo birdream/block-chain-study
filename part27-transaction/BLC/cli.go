@@ -17,6 +17,7 @@ func (cli *CLI) printUsage() {
 	fmt.Println("Usage:")
 	fmt.Println("    addBlock -data BLOCK_DATA")
 	fmt.Println("    printchain - ")
+	fmt.Println("    send -from FROM -to TO -amount AMOUNT")
 }
 
 func (cli *CLI) validateArgs() {
@@ -26,11 +27,10 @@ func (cli *CLI) validateArgs() {
 	}
 }
 
-func (cli *CLI) sendToken() {
-	tx1 := NewUTXOTransaction("Norman", "Jan", 3, cli.BC)
-	tx2 := NewUTXOTransaction("Norman", "Lu", 5, cli.BC)
+func (cli *CLI) sendToken(from, to string, amount int) {
+	tx := NewUTXOTransaction(from, to, amount, cli.BC)
 
-	cli.BC.MineBlock([]*Transaction{tx1, tx2})
+	cli.BC.MineBlock([]*Transaction{tx})
 }
 
 func (cli *CLI) printChain() {
@@ -86,6 +86,11 @@ func (cli *CLI) Run() {
 	printChainCmd := flag.NewFlagSet("printchain", flag.ExitOnError)
 	addBlockData := addBlockCmd.String("data", "", "Block Data")
 
+	sendCmd := flag.NewFlagSet("send", flag.ExitOnError)
+	sendFrom := sendCmd.String("from", "", "Source wallet address")
+	sendTo := sendCmd.String("to", "", "Destination wallet address")
+	sendAmount := sendCmd.Int("amount", 0, "Amount to send")
+
 	switch os.Args[1] {
 	case "addblock":
 		err := addBlockCmd.Parse(os.Args[2:])
@@ -94,6 +99,11 @@ func (cli *CLI) Run() {
 		}
 	case "printchain":
 		err := printChainCmd.Parse(os.Args[2:])
+		if err != nil {
+			log.Panic(err)
+		}
+	case "send":
+		err := sendCmd.Parse(os.Args[2:])
 		if err != nil {
 			log.Panic(err)
 		}
@@ -113,5 +123,14 @@ func (cli *CLI) Run() {
 
 	if printChainCmd.Parsed() {
 		cli.printChain()
+	}
+
+	if sendCmd.Parsed() {
+		if *sendFrom == "" || *sendTo == "" || *sendAmount <= 0 {
+			sendCmd.Usage()
+			os.Exit(1)
+		}
+
+		cli.sendToken(*sendFrom, *sendTo, *sendAmount)
 	}
 }
