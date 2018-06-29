@@ -75,11 +75,11 @@ func (out *TXOutput) CanBeUnlockedWith(unlockingData string) bool {
 }
 
 // 建立转账交易
-func NewUTXOTransaction(from string, to string, amount int, bc *Blockchain) *Transaction {
+func NewUTXOTransaction(from string, to string, amount int, bc *Blockchain, txs []*Transaction) *Transaction {
 	var inputs []TXInput
 	var outputs []TXOutput
 
-	acc, validOutputs := bc.FindSpendableOutputs(from, amount)
+	acc, validOutputs := bc.FindSpendableOutputs(from, amount, txs)
 
 	if acc < amount {
 		log.Panic("\nNot enough funds ...!!!\n")

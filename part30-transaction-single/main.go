@@ -1,6 +1,6 @@
 package main
 
-import "kyxy/block-chain/part30-transaction/BLC"
+import "kyxy/block-chain/part30-transaction-single/BLC"
 
 // 16 进制
 // 64位哈希值

@@ -51,7 +51,7 @@ func (cli *CLI) sendOneToken(from, to string, amount int) {
 	bc := NewBlockChain(from)
 	defer bc.DB.Close()
 
-	tx := NewUTXOTransaction(from, to, amount, bc)
+	tx := NewUTXOTransaction(from, to, amount, bc, []*Transaction{})
 	bc.MineBlock([]*Transaction{tx})
 	fmt.Println("Success!")
 }
