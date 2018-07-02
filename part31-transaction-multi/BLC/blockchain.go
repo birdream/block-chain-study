@@ -164,7 +164,17 @@ func (bc *Blockchain) FindUnspentTransactions(address string, txs []*Transaction
 	var unspentTXs []Transaction
 	spentTXOs := make(map[string][]int)
 
-	for _, tx := range txs {
+	for i := len(txs) - 1; i >= 0; i-- {
+		tx := txs[i]
+		if tx.IsCoinbase() == false {
+			for _, in := range tx.Vin {
+				if in.CanUnlockOutputWith(address) {
+					inTxID := hex.EncodeToString(in.Txid)
+					spentTXOs[inTxID] = append(spentTXOs[inTxID], in.Vout)
+				}
+			}
+		}
+
 		txID := hex.EncodeToString(tx.ID)
 
 	Work:
@@ -182,15 +192,6 @@ func (bc *Blockchain) FindUnspentTransactions(address string, txs []*Transaction
 				unspentTXs = append(unspentTXs, *tx)
 			}
 		}
-
-		if tx.IsCoinbase() == false {
-			for _, in := range tx.Vin {
-				if in.CanUnlockOutputWith(address) {
-					inTxID := hex.EncodeToString(in.Txid)
-					spentTXOs[inTxID] = append(spentTXOs[inTxID], in.Vout)
-				}
-			}
-		}
 	}
 
 	bci := bc.Iterator()
@@ -199,7 +200,8 @@ func (bc *Blockchain) FindUnspentTransactions(address string, txs []*Transaction
 	for {
 		block := bci.Next()
 
-		for _, tran := range block.Transactions {
+		for i := len(block.Transactions) - 1; i >= 0; i-- {
+			tran := block.Transactions[i]
 			txID := hex.EncodeToString(tran.ID)
 
 		Outputs:
