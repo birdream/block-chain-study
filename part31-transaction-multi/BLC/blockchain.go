@@ -165,32 +165,11 @@ func (bc *Blockchain) FindUnspentTransactions(address string, txs []*Transaction
 	spentTXOs := make(map[string][]int)
 
 	for _, tx := range txs {
-		if tx.IsCoinbase() == false {
-			for _, in := range tx.Vin {
-				if in.CanUnlockOutputWith(address) {
-					inTxID := hex.EncodeToString(in.Txid)
-					spentTXOs[inTxID] = append(spentTXOs[inTxID], in.Vout)
-				}
-			}
-		}
-	}
-
-	for _, tx := range txs {
-		// txID := hex.EncodeToString(tx.ID)
+		txID := hex.EncodeToString(tx.ID)
 
 	Work:
-		for _, out := range tx.Vout {
+		for outIdx, out := range tx.Vout {
 
-			for hash, indexArray := range spentTXOs {
-				txHashStr := hex.EncodeToString(tx.ID)
-				if hash == txHashStr {
-
-				} else {
-					utxo := unspentTXs{tx.ID, hash, indexArray}
-					unspentTXs = append(unspentTXs, utxo)
-				}
-			}
-			//是否已经花费
 			if spentTXOs[txID] != nil {
 				for _, spentOut := range spentTXOs[txID] {
 					if spentOut == outIdx {
@@ -204,6 +183,14 @@ func (bc *Blockchain) FindUnspentTransactions(address string, txs []*Transaction
 			}
 		}
 
+		if tx.IsCoinbase() == false {
+			for _, in := range tx.Vin {
+				if in.CanUnlockOutputWith(address) {
+					inTxID := hex.EncodeToString(in.Txid)
+					spentTXOs[inTxID] = append(spentTXOs[inTxID], in.Vout)
+				}
+			}
+		}
 	}
 
 	bci := bc.Iterator()
