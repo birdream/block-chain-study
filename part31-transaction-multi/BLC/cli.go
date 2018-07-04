@@ -15,6 +15,7 @@ func (cli *CLI) printUsage() {
 	fmt.Println("\tcreateblockchain -address ADDRESS - Create a blockchain and send genesis block reward to ADDRESS")
 	fmt.Println("\tprintchain - ")
 	fmt.Println("\tsendmany -from FROM -to TO -amount AMOUNT")
+	fmt.Println("\tsendone -from FROM -to TO -amount AMOUNT")
 }
 
 func (cli *CLI) validateArgs() {
