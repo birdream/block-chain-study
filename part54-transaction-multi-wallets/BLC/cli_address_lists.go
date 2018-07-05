@@ -1,6 +1,12 @@
 package BLC
 
-func (cli *CLI) createWallet() {
-	wallets := NewWallets()
-	wallets.CreateNewWallet()
+import "fmt"
+
+func (cli *CLI) addressLists() {
+	ws, _ := NewWallets()
+
+	for addr, _ := range ws.Wallets {
+
+		fmt.Println(addr)
+	}
 }

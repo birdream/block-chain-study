@@ -4,6 +4,9 @@ import (
 	"fmt"
 )
 
-func (cli *CLI) addressLists() {
-	fmt.Print("adress lists")
+func (cli *CLI) createWallet() {
+	ws, _ := NewWallets()
+	ws.CreateNewWallet()
+
+	fmt.Println(len(ws.Wallets))
 }
