@@ -10,7 +10,7 @@ func (cli *CLI) getBalance(address string) {
 	UTXOs := bc.FindUTXO(address)
 
 	for _, out := range UTXOs {
-		balance += out.Value
+		balance += int(out.Value)
 	}
 
 	fmt.Printf("Balance of '%s': %d\n", address, balance)

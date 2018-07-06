@@ -9,45 +9,41 @@ import (
 // 建立转账交易
 func NewUTXOTransaction(from string, to string, amount int, bc *Blockchain, txs []*Transaction) *Transaction {
 	wallets, _ := NewWallets()
-	w := wallets.Wallets[from]
+	wallet := wallets.WalletsMap[from]
 
 	var inputs []*TXInput
 	var outputs []*TXOutput
 
-	acc, validOutputs := bc.FindSpendableOutputs(from, amount, txs)
+	money, spendableUTXODic := bc.FindSpendableOutputs(from, amount, txs)
 
-	if acc < amount {
+	if money < amount {
 		log.Panic("\nNot enough funds ...!!!\n")
 	}
 
 	// 建立输入
-	for txid, outs := range validOutputs {
-		txID, err := hex.DecodeString(txid)
-		if err != nil {
-			log.Panic(err)
-		}
-
+	for txid, outs := range spendableUTXODic {
+		txID, _ := hex.DecodeString(txid)
 		for _, out := range outs {
-			input := &TXInput{txID, out, nil, w.PublicKey}
+			input := &TXInput{txID, out, nil, wallet.PublicKey}
 			inputs = append(inputs, input)
 		}
 	}
 
 	// 建立输出， 转账
-
 	// output := TXOutput{amount, to}
-	output := NewTXOutput(amount, to)
+	output := NewTXOutput(int64(amount), to)
 	outputs = append(outputs, output)
 	// 建立输出， 找零
-	if acc > amount {
-		output = NewTXOutput(amount, to)
+	if int64(money) > int64(amount) {
+		output = NewTXOutput(int64(money)-int64(amount), from)
 		outputs = append(outputs, output)
 	}
 
-	tx := Transaction{nil, inputs, outputs}
+	tx := &Transaction{[]byte{}, inputs, outputs}
+
 	tx.SetID()
 
-	return &tx
+	return tx
 }
 
 // 查找可用的未花费的输出信息
@@ -64,7 +60,7 @@ Work:
 
 		for outIdx, out := range tx.Vout {
 			if out.CanBeUnlockedWith(address) && accumulated < amount {
-				accumulated += out.Value
+				accumulated += int(out.Value)
 				unspentOutputs[txID] = append(unspentOutputs[txID], outIdx)
 
 				if accumulated >= amount {

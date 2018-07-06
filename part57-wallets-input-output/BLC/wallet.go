@@ -11,11 +11,6 @@ import (
 	"golang.org/x/crypto/ripemd160"
 )
 
-const (
-	version            = byte(0x00)
-	addressCjecksumLen = 4
-)
-
 type Wallet struct {
 	PrivateKey ecdsa.PrivateKey
 	PublicKey  []byte
@@ -75,7 +70,7 @@ func CheckSum(b []byte) []byte {
 	h_1 := sha256.Sum256(b)
 	h_2 := sha256.Sum256(h_1[:])
 
-	return h_2[:addressCjecksumLen]
+	return h_2[:addressChecksumLen]
 
 }
 
@@ -86,10 +81,10 @@ func IsValidForAddress(addr []byte) bool {
 	// fmt.Println(version_public_checksumBytes)
 
 	// 取后四字节
-	checkSumBytes := version_public_checksumBytes[(len(version_public_checksumBytes) - addressCjecksumLen):]
+	checkSumBytes := version_public_checksumBytes[(len(version_public_checksumBytes) - addressChecksumLen):]
 
 	// 前21字节
-	version_ripemd160Has := version_public_checksumBytes[:(len(version_public_checksumBytes) - addressCjecksumLen)]
+	version_ripemd160Has := version_public_checksumBytes[:(len(version_public_checksumBytes) - addressChecksumLen)]
 
 	// fmt.Println(len(checkSumBytes))
 	// fmt.Println(len(version_ripemd160Has))

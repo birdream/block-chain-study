@@ -9,10 +9,6 @@ import (
 	"github.com/boltdb/bolt"
 )
 
-const dbFile = "blockchain.db"
-const blocksBucket = "blocks"
-const genesisCoinbaseData = "The Time 03/jan/2009 chancellor on brink of second bailout for banks"
-
 type Blockchain struct {
 	Tip []byte   //最后一个区块的hash
 	DB  *bolt.DB // 数据库

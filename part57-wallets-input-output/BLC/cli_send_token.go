@@ -12,7 +12,7 @@ func (cli *CLI) sendToken(from, to, amount []string) {
 		os.Exit(1)
 	}
 	bc := BlockchainObj()
-	defer bc.DB.Close()
+	// defer bc.DB.Close()
 
 	// tx := NewUTXOTransaction(from, to, amount, bc)
 	// bc.MineBlock([]*Transaction{tx})
@@ -30,7 +30,7 @@ func (cli *CLI) sendOneToken(from, to string, amount int) {
 	}
 
 	bc := NewBlockChain(from)
-	defer bc.DB.Close()
+	// defer bc.DB.Close()
 
 	tx := NewUTXOTransaction(from, to, amount, bc, []*Transaction{})
 	bc.MineBlock([]*Transaction{tx})

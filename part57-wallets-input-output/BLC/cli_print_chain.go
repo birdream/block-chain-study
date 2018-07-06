@@ -24,6 +24,7 @@ func (cli *CLI) printChain() {
 		fmt.Printf("Hash: %x\n", block.Hash)
 		// pow := NewProofOfWork(*block)
 		// fmt.Printf("PoW: %s\n", strconv.FormatBool(pow.Validate()))
+
 		for _, tranx := range block.Transactions {
 			fmt.Printf("Transactions: %x\n", tranx.ID)
 			fmt.Println("\nVin:")
@@ -33,7 +34,7 @@ func (cli *CLI) printChain() {
 
 			fmt.Println("\nVout:")
 			for _, out := range tranx.Vout {
-				fmt.Println(out.Value, "  ", out.pubKeyHash)
+				fmt.Println(out.Value, "  ", out.PubKeyHash)
 			}
 
 		}

@@ -5,7 +5,7 @@ import "fmt"
 func (cli *CLI) addressLists() {
 	ws, _ := NewWallets()
 
-	for addr, _ := range ws.Wallets {
+	for addr, _ := range ws.WalletsMap {
 
 		fmt.Println(addr)
 	}

@@ -10,17 +10,15 @@ import (
 	"os"
 )
 
-const walletFile = "Wallets.dat"
-
 type Wallets struct {
-	Wallets map[string]*Wallet
+	WalletsMap map[string]*Wallet
 }
 
 func NewWallets() (*Wallets, error) {
 
 	if _, err := os.Stat(walletFile); os.IsNotExist(err) {
 		wallets := &Wallets{}
-		wallets.Wallets = make(map[string]*Wallet)
+		wallets.WalletsMap = make(map[string]*Wallet)
 		return wallets, err
 	}
 
@@ -30,6 +28,7 @@ func NewWallets() (*Wallets, error) {
 	}
 
 	var wallets Wallets
+
 	gob.Register(elliptic.P256())
 	decoder := gob.NewDecoder(bytes.NewReader(fileContent))
 	err = decoder.Decode(&wallets)
@@ -44,7 +43,7 @@ func (ws *Wallets) CreateNewWallet() {
 	w := NewWallet()
 	fmt.Printf("Address: %s\n", w.GetAddress())
 
-	ws.Wallets[string(w.GetAddress())] = w
+	ws.WalletsMap[string(w.GetAddress())] = w
 	ws.SaveToFile()
 }
 

@@ -12,8 +12,6 @@ var (
 	maxNonce = math.MaxInt64
 )
 
-const targetBits = 12 // 23个0前面
-
 type ProofWork struct {
 	block  *Block
 	target *big.Int

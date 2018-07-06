@@ -8,8 +8,6 @@ import (
 	"log"
 )
 
-const subsidy = 10
-
 type Transaction struct {
 	ID   []byte
 	Vin  []*TXInput
@@ -18,8 +16,8 @@ type Transaction struct {
 
 //
 func (tx *Transaction) SetID() {
+
 	var encoded bytes.Buffer
-	var hash [32]byte
 
 	enc := gob.NewEncoder(&encoded)
 	err := enc.Encode(tx)
@@ -27,8 +25,9 @@ func (tx *Transaction) SetID() {
 		log.Panic(err)
 	}
 
-	hash = sha256.Sum256(encoded.Bytes())
+	hash := sha256.Sum256(encoded.Bytes())
 	tx.ID = hash[:]
+
 }
 
 // 创建一新的coinbase交易
@@ -41,14 +40,10 @@ func NewCoinBaseTX(to string, data string) *Transaction {
 	txin := &TXInput{[]byte{}, -1, nil, []byte{}}
 	// 创建输出
 	txout := NewTXOutput(subsidy, to)
-	fmt.Println("--------------")
-	fmt.Println(txout.pubKeyHash)
-	fmt.Println("--------------")
+
 	// 创建交易
 	tx := &Transaction{[]byte{}, []*TXInput{txin}, []*TXOutput{txout}}
-	fmt.Println("--------------11")
-	fmt.Println(tx.Vout[0].pubKeyHash)
-	fmt.Println("--------------11")
+
 	tx.SetID()
 
 	return tx
